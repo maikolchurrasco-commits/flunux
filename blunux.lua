@@ -12,7 +12,7 @@ gui.ResetOnSpawn = false
 
 -- FRAME
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,350,0,480)
+frame.Size = UDim2.new(0,480,0,480)
 frame.Position = UDim2.new(0.5,-150,0.35,0)
 Color3.fromRGB(60,60,60)
 frame.BorderSizePixel = 0
