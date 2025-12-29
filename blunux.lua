@@ -12,7 +12,7 @@ gui.ResetOnSpawn = false
 
 -- FRAME
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,300,0,350)
+frame.Size = UDim2.new(0,300,0,430)
 frame.Position = UDim2.new(0.5,-150,0.35,0)
 frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 frame.BorderSizePixel = 0
@@ -32,7 +32,7 @@ title.TextSize = 16
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.ZIndex = 11
 
--- BOTÓN CERRAR
+-- BOTONES TOP
 local close = Instance.new("TextButton", frame)
 close.Size = UDim2.new(0,30,0,30)
 close.Position = UDim2.new(1,-35,0,5)
@@ -44,7 +44,6 @@ close.TextSize = 18
 close.ZIndex = 11
 Instance.new("UICorner", close)
 
--- BOTÓN MINIMIZAR
 local minimize = Instance.new("TextButton", frame)
 minimize.Size = UDim2.new(0,30,0,30)
 minimize.Position = UDim2.new(1,-70,0,5)
@@ -87,7 +86,7 @@ end
 local speedBox = labelBox("Velocidad",45,"Ej: 50")
 local jumpBox = labelBox("Salto",145,"Ej: 120")
 
--- BOTONES
+-- FUNCIÓN BOTÓN TOGGLE
 local function toggleBtn(y,text)
 	local b = Instance.new("TextButton", frame)
 	b.Size = UDim2.new(0,260,0,35)
@@ -105,6 +104,29 @@ end
 local speedBtn = toggleBtn(100,"Velocidad")
 local jumpBtn = toggleBtn(200,"Salto")
 local noclipBtn = toggleBtn(255,"Noclip")
+
+-- BOTONES POSICIÓN
+local savePosBtn = Instance.new("TextButton", frame)
+savePosBtn.Size = UDim2.new(0,260,0,35)
+savePosBtn.Position = UDim2.new(0,20,0,300)
+savePosBtn.Text = "Guardar Posición"
+savePosBtn.BackgroundColor3 = Color3.fromRGB(70,130,200)
+savePosBtn.TextColor3 = Color3.new(1,1,1)
+savePosBtn.Font = Enum.Font.GothamBold
+savePosBtn.TextSize = 15
+savePosBtn.ZIndex = 11
+Instance.new("UICorner", savePosBtn)
+
+local tpPosBtn = Instance.new("TextButton", frame)
+tpPosBtn.Size = UDim2.new(0,260,0,35)
+tpPosBtn.Position = UDim2.new(0,20,0,345)
+tpPosBtn.Text = "Teleportar a Posición"
+tpPosBtn.BackgroundColor3 = Color3.fromRGB(180,60,180)
+tpPosBtn.TextColor3 = Color3.new(1,1,1)
+tpPosBtn.Font = Enum.Font.GothamBold
+tpPosBtn.TextSize = 15
+tpPosBtn.ZIndex = 11
+Instance.new("UICorner", tpPosBtn)
 
 -- CÍRCULO FLOTANTE
 local floating = Instance.new("TextButton", gui)
@@ -153,9 +175,11 @@ floating.MouseButton1Click:Connect(function()
 	floating.Visible=false
 end)
 
--- TOGGLES
+-- ESTADOS
 local speedOn, jumpOn, noclip = false,false,false
+local savedCFrame = nil
 
+-- VELOCIDAD
 speedBtn.MouseButton1Click:Connect(function()
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if not hum then return end
@@ -171,6 +195,7 @@ speedBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
+-- SALTO
 jumpBtn.MouseButton1Click:Connect(function()
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if not hum then return end
@@ -186,6 +211,7 @@ jumpBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
+-- NOCLIP
 noclipBtn.MouseButton1Click:Connect(function()
 	noclip = not noclip
 	noclipBtn.BackgroundColor3 = noclip and Color3.fromRGB(60,200,100) or Color3.fromRGB(180,60,60)
@@ -196,14 +222,34 @@ RunService.Stepped:Connect(function()
 	if noclip and player.Character then
 		for _,v in pairs(player.Character:GetDescendants()) do
 			if v:IsA("BasePart") then
-				v.CanCollide=false
+				v.CanCollide = false
 			end
 		end
 	end
 end)
 
--- 🔑 CTRL PARA ABRIR / MINIMIZAR
-UserInputService.InputBegan:Connect(function(input, gp)
+-- GUARDAR POSICIÓN
+savePosBtn.MouseButton1Click:Connect(function()
+	local char = player.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		savedCFrame = char.HumanoidRootPart.CFrame
+		savePosBtn.Text = "Posición Guardada ✔"
+		task.delay(1.5, function()
+			savePosBtn.Text = "Guardar Posición"
+		end)
+	end
+end)
+
+-- TELEPORT
+tpPosBtn.MouseButton1Click:Connect(function()
+	local char = player.Character
+	if savedCFrame and char and char:FindFirstChild("HumanoidRootPart") then
+		char.HumanoidRootPart.CFrame = savedCFrame
+	end
+end)
+
+-- CTRL TOGGLE
+UserInputService.InputBegan:Connect(function(input,gp)
 	if gp then return end
 	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
 		if frame.Visible then
