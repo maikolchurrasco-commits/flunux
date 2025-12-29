@@ -1,0 +1,146 @@
+-- SERVICIOS
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- ESPERAR PLAYERGUI (FIX BUNNI)
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- HUMANOID
+local function getHumanoid()
+	local char = player.Character or player.CharacterAdded:Wait()
+	return char:WaitForChild("Humanoid")
+end
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "BoostMenuBunni"
+gui.Parent = PlayerGui
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 999999
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
+-- esperar 1 frame (CRÍTICO EN BUNNI)
+RunService.RenderStepped:Wait()
+
+-- FRAME
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.Size = UDim2.new(0, 360, 0, 260)
+frame.Position = UDim2.new(0.5, -180, 0.4, -130)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Active = true
+frame.ClipsDescendants = false
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
+
+-- TITULO
+local title = Instance.new("TextLabel")
+title.Parent = frame
+title.Size = UDim2.new(1, -80, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.Text = "Boost Menu"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- BOTONES SUPERIORES
+local function topButton(text, pos, color)
+	local b = Instance.new("TextButton")
+	b.Parent = frame
+	b.Size = UDim2.new(0,30,0,30)
+	b.Position = pos
+	b.Text = text
+	b.BackgroundColor3 = color
+	b.TextColor3 = Color3.new(1,1,1)
+	b.Font = Enum.Font.SourceSansBold
+	b.TextSize = 18
+	Instance.new("UICorner", b).CornerRadius = UDim.new(1,0)
+	return b
+end
+
+local close = topButton("X", UDim2.new(1,-35,0,5), Color3.fromRGB(170,0,0))
+local mini  = topButton("-", UDim2.new(1,-70,0,5), Color3.fromRGB(80,80,80))
+
+-- VELOCIDAD
+local speedBtn = Instance.new("TextButton", frame)
+speedBtn.Size = UDim2.new(0,160,0,40)
+speedBtn.Position = UDim2.new(0,15,0,90)
+speedBtn.Text = "Velocidad"
+speedBtn.BackgroundColor3 = Color3.fromRGB(0,120,255)
+speedBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", speedBtn).CornerRadius = UDim.new(0,8)
+
+local speedBox = Instance.new("TextBox", frame)
+speedBox.Size = UDim2.new(0,120,0,40)
+speedBox.Position = UDim2.new(0,190,0,90)
+speedBox.PlaceholderText = "Ej: 50"
+speedBox.Text = ""
+speedBox.ClearTextOnFocus = false
+speedBox.BackgroundColor3 = Color3.fromRGB(45,45,45)
+speedBox.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", speedBox).CornerRadius = UDim.new(0,8)
+
+-- SALTO
+local jumpBtn = Instance.new("TextButton", frame)
+jumpBtn.Size = UDim2.new(0,160,0,40)
+jumpBtn.Position = UDim2.new(0,15,0,150)
+jumpBtn.Text = "Salto"
+jumpBtn.BackgroundColor3 = Color3.fromRGB(0,200,120)
+jumpBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", jumpBtn).CornerRadius = UDim.new(0,8)
+
+local jumpBox = Instance.new("TextBox", frame)
+jumpBox.Size = UDim2.new(0,120,0,40)
+jumpBox.Position = UDim2.new(0,190,0,150)
+jumpBox.PlaceholderText = "Ej: 120"
+jumpBox.Text = ""
+jumpBox.ClearTextOnFocus = false
+jumpBox.BackgroundColor3 = Color3.fromRGB(45,45,45)
+jumpBox.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", jumpBox).CornerRadius = UDim.new(0,8)
+
+-- DRAG
+local function drag(f)
+	local d, start, pos
+	f.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 then
+			d = true
+			start = i.Position
+			pos = f.Position
+		end
+	end)
+	UIS.InputChanged:Connect(function(i)
+		if d and i.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = i.Position - start
+			f.Position = UDim2.new(pos.X.Scale, pos.X.Offset + delta.X, pos.Y.Scale, pos.Y.Offset + delta.Y)
+		end
+	end)
+	UIS.InputEnded:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 then
+			d = false
+		end
+	end)
+end
+
+drag(frame)
+
+-- FUNCIONES
+speedBtn.MouseButton1Click:Connect(function()
+	getHumanoid().WalkSpeed = tonumber(speedBox.Text) or 50
+end)
+
+jumpBtn.MouseButton1Click:Connect(function()
+	getHumanoid().JumpPower = tonumber(jumpBox.Text) or 120
+end)
+
+mini.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
