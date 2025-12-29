@@ -24,7 +24,7 @@ Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1,-80,0,30)
 title.Position = UDim2.new(0,10,0,5)
-title.Text = "SCRIPT GUI"
+title.Text = "BLUNUX"
 title.TextColor3 = Color3.new(1,1,1)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
@@ -80,47 +80,31 @@ local function labelBox(text,y,placeholder)
 	b.ClearTextOnFocus = false
 	b.ZIndex = 11
 	Instance.new("UICorner", b)
+
 	return b
 end
 
 local speedBox = labelBox("Velocidad",45,"Ej: 50")
 local jumpBox = labelBox("Salto",145,"Ej: 120")
 
--- BOTÓN VELOCIDAD (TOGGLE)
-local speedBtn = Instance.new("TextButton", frame)
-speedBtn.Size = UDim2.new(0,260,0,35)
-speedBtn.Position = UDim2.new(0,20,0,100)
-speedBtn.Text = "Velocidad DESACTIVADA"
-speedBtn.BackgroundColor3 = Color3.fromRGB(180,60,60)
-speedBtn.TextColor3 = Color3.new(1,1,1)
-speedBtn.Font = Enum.Font.GothamBold
-speedBtn.TextSize = 15
-speedBtn.ZIndex = 11
-Instance.new("UICorner", speedBtn)
+-- BOTONES
+local function toggleBtn(y,text)
+	local b = Instance.new("TextButton", frame)
+	b.Size = UDim2.new(0,260,0,35)
+	b.Position = UDim2.new(0,20,0,y)
+	b.Text = text.." DESACTIVADO"
+	b.BackgroundColor3 = Color3.fromRGB(180,60,60)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 15
+	b.ZIndex = 11
+	Instance.new("UICorner", b)
+	return b
+end
 
--- BOTÓN SALTO (TOGGLE)
-local jumpBtn = Instance.new("TextButton", frame)
-jumpBtn.Size = UDim2.new(0,260,0,35)
-jumpBtn.Position = UDim2.new(0,20,0,200)
-jumpBtn.Text = "Salto DESACTIVADO"
-jumpBtn.BackgroundColor3 = Color3.fromRGB(180,60,60)
-jumpBtn.TextColor3 = Color3.new(1,1,1)
-jumpBtn.Font = Enum.Font.GothamBold
-jumpBtn.TextSize = 15
-jumpBtn.ZIndex = 11
-Instance.new("UICorner", jumpBtn)
-
--- BOTÓN NOCLIP
-local noclipBtn = Instance.new("TextButton", frame)
-noclipBtn.Size = UDim2.new(0,260,0,35)
-noclipBtn.Position = UDim2.new(0,20,0,255)
-noclipBtn.Text = "Noclip DESACTIVADO"
-noclipBtn.BackgroundColor3 = Color3.fromRGB(180,60,60)
-noclipBtn.TextColor3 = Color3.new(1,1,1)
-noclipBtn.Font = Enum.Font.GothamBold
-noclipBtn.TextSize = 15
-noclipBtn.ZIndex = 11
-Instance.new("UICorner", noclipBtn)
+local speedBtn = toggleBtn(100,"Velocidad")
+local jumpBtn = toggleBtn(200,"Salto")
+local noclipBtn = toggleBtn(255,"Noclip")
 
 -- CÍRCULO FLOTANTE
 local floating = Instance.new("TextButton", gui)
@@ -158,7 +142,7 @@ end
 drag(frame)
 drag(floating)
 
--- CERRAR / MINIMIZAR
+-- BOTONES TOP
 close.MouseButton1Click:Connect(function() gui:Destroy() end)
 minimize.MouseButton1Click:Connect(function()
 	frame.Visible=false
@@ -170,9 +154,7 @@ floating.MouseButton1Click:Connect(function()
 end)
 
 -- TOGGLES
-local speedOn=false
-local jumpOn=false
-local noclip=false
+local speedOn, jumpOn, noclip = false,false,false
 
 speedBtn.MouseButton1Click:Connect(function()
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
@@ -206,13 +188,8 @@ end)
 
 noclipBtn.MouseButton1Click:Connect(function()
 	noclip = not noclip
-	if noclip then
-		noclipBtn.BackgroundColor3 = Color3.fromRGB(60,200,100)
-		noclipBtn.Text = "Noclip ACTIVADO"
-	else
-		noclipBtn.BackgroundColor3 = Color3.fromRGB(180,60,60)
-		noclipBtn.Text = "Noclip DESACTIVADO"
-	end
+	noclipBtn.BackgroundColor3 = noclip and Color3.fromRGB(60,200,100) or Color3.fromRGB(180,60,60)
+	noclipBtn.Text = noclip and "Noclip ACTIVADO" or "Noclip DESACTIVADO"
 end)
 
 RunService.Stepped:Connect(function()
@@ -221,6 +198,20 @@ RunService.Stepped:Connect(function()
 			if v:IsA("BasePart") then
 				v.CanCollide=false
 			end
+		end
+	end
+end)
+
+-- 🔑 CTRL PARA ABRIR / MINIMIZAR
+UserInputService.InputBegan:Connect(function(input, gp)
+	if gp then return end
+	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+		if frame.Visible then
+			frame.Visible=false
+			floating.Visible=true
+		else
+			frame.Visible=true
+			floating.Visible=false
 		end
 	end
 end)
